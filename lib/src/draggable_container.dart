@@ -136,6 +136,26 @@ class DraggableContainerState<T extends DraggableItem> extends State<DraggableCo
 
   List<DraggableSlot<T>> get slots => _relationship.keys.toList();
 
+  @override
+  void didUpdateWidget(DraggableContainer<T> oldWidget) {
+    _relationship.values.forEach((element) {
+      if (element != null) {
+        element.key.currentState
+          ?..edit = _editMode
+          ..update();
+      }
+    });
+
+    if (oldWidget.items != widget.items) {
+      reorder();
+      if (mounted) {
+        _updateSlots();
+        setState(() {});
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
   set editMode(bool value) {
     _editMode = value;
     if (value) {
@@ -238,11 +258,7 @@ class DraggableContainerState<T extends DraggableItem> extends State<DraggableCo
     });
   }
 
-  DraggableWidget<T>? _createItem({
-    required int index,
-    T? item,
-    required Rect rect,
-  }) {
+  DraggableWidget<T>? _createItem({required int index, T? item, required Rect rect}) {
     Widget? child = widget.itemBuilder(context, item);
     if (child == null) return null;
     Widget button = widget.deleteButtonBuilder?.call(context, item) ??
@@ -287,24 +303,6 @@ class DraggableContainerState<T extends DraggableItem> extends State<DraggableCo
       ),
     );
     return tile;
-  }
-
-  @override
-  void didUpdateWidget(DraggableContainer<T> oldWidget) {
-    print('didUpdateWidget');
-
-    _relationship.values.forEach((element) {
-      if (element != null) {
-        element.key.currentState
-          ?..edit = _editMode
-          ..update();
-      }
-    });
-
-    if (oldWidget.items != widget.items) {
-      setState(() {});
-    }
-    super.didUpdateWidget(oldWidget);
   }
 
   bool _isHitItem(Offset globalPosition) {
