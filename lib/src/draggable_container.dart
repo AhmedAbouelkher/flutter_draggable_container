@@ -25,8 +25,7 @@ typedef Future<bool> BeforeDropCallBack<T extends DraggableItem>({
   T? toItem,
   int toSlotIndex,
 });
-typedef Future<bool> BeforeRemoveCallBack<T extends DraggableItem>(
-    T? item, int slotIndex);
+typedef Future<bool> BeforeRemoveCallBack<T extends DraggableItem>(T? item, int slotIndex);
 
 class DraggableContainer<T extends DraggableItem> extends StatefulWidget {
   final List<T?> items;
@@ -60,16 +59,14 @@ class DraggableContainer<T extends DraggableItem> extends StatefulWidget {
     this.shrinkWrap,
     this.draggingDecoration,
     Duration? animationDuration,
-  })  : animationDuration =
-            animationDuration ?? const Duration(milliseconds: 200),
+  })  : animationDuration = animationDuration ?? const Duration(milliseconds: 200),
         super(key: key);
 
   @override
   DraggableContainerState<T> createState() => DraggableContainerState<T>();
 }
 
-class DraggableContainerState<T extends DraggableItem>
-    extends State<DraggableContainer<T>> with AboutRect {
+class DraggableContainerState<T extends DraggableItem> extends State<DraggableContainer<T>> with AboutRect {
   final Map<DraggableSlot<T>, DraggableWidget<T>?> _relationship = {};
 
   List<T?> get items => _relationship.values.map((e) => e?.item).toList();
@@ -90,8 +87,7 @@ class DraggableContainerState<T extends DraggableItem>
   }
 
   late final GestureRecognizerFactory _longPressRecognizer =
-      GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-          () => LongPressGestureRecognizer(),
+      GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(() => LongPressGestureRecognizer(),
           (LongPressGestureRecognizer instance) {
     instance
       ..onLongPressStart = onLongPressStart
@@ -100,8 +96,7 @@ class DraggableContainerState<T extends DraggableItem>
   });
 
   late final GestureRecognizerFactory _draggableItemRecognizer =
-      GestureRecognizerFactoryWithHandlers<DraggableItemRecognizer>(
-          () => DraggableItemRecognizer(containerState: this),
+      GestureRecognizerFactoryWithHandlers<DraggableItemRecognizer>(() => DraggableItemRecognizer(containerState: this),
           (DraggableItemRecognizer instance) {
     instance
       ..isHitItem = _isHitItem
@@ -131,11 +126,9 @@ class DraggableContainerState<T extends DraggableItem>
 
   bool get tapOutSideExitEditMode => this._tapOutSideExitEditMode;
 
-  Map<DraggableSlot<T>, DraggableWidget<T>?> get relationship =>
-      Map.from(_relationship);
+  Map<DraggableSlot<T>, DraggableWidget<T>?> get relationship => Map.from(_relationship);
 
-  set tapOutSideExitEditMode(bool value) =>
-      this._tapOutSideExitEditMode = value;
+  set tapOutSideExitEditMode(bool value) => this._tapOutSideExitEditMode = value;
 
   bool _editMode = false;
 
@@ -186,9 +179,7 @@ class DraggableContainerState<T extends DraggableItem>
               },
               onPointerUp: (e) {
                 // print('onPointerUp $_containerRect');
-                if (_tapOutSideExitEditMode &&
-                    !_containerRect.contains(e.position) &&
-                    pickUp == null) {
+                if (_tapOutSideExitEditMode && !_containerRect.contains(e.position) && pickUp == null) {
                   editMode = false;
                 }
               },
@@ -300,7 +291,8 @@ class DraggableContainerState<T extends DraggableItem>
 
   @override
   void didUpdateWidget(DraggableContainer<T> oldWidget) {
-    // print('didUpdateWidget');
+    print('didUpdateWidget');
+
     _relationship.values.forEach((element) {
       if (element != null) {
         element.key.currentState
@@ -308,6 +300,10 @@ class DraggableContainerState<T extends DraggableItem>
           ..update();
       }
     });
+
+    if (oldWidget.items != widget.items) {
+      setState(() {});
+    }
     super.didUpdateWidget(oldWidget);
   }
 
@@ -442,10 +438,8 @@ class DraggableContainerState<T extends DraggableItem>
     if (_fromSlot == null || _fromSlot == toSlot) return;
     final slots = _relationship.keys.toList();
     final tiles = _relationship.values.toList();
-    final fromIndex = slots.indexOf(_fromSlot!),
-        toIndex = slots.indexOf(toSlot);
-    final start = math.min(fromIndex, toIndex),
-        end = math.max(fromIndex, toIndex);
+    final fromIndex = slots.indexOf(_fromSlot!), toIndex = slots.indexOf(toSlot);
+    final start = math.min(fromIndex, toIndex), end = math.max(fromIndex, toIndex);
     final T? fromItem = tiles[fromIndex]?.item;
     final T? toItem = tiles[toIndex]?.item;
     var canDrop = toItem == null || !toItem.fixed;
@@ -462,8 +456,7 @@ class DraggableContainerState<T extends DraggableItem>
     if (end - start == 1) {
       // 前后交换
       // print('前后位置交换： $start to $end');
-      _relationship[toSlot]?.key.currentState?.rect =
-          _fromSlot!.key.currentState!.rect;
+      _relationship[toSlot]?.key.currentState?.rect = _fromSlot!.key.currentState!.rect;
       _relationship[_fromSlot!] = _relationship[toSlot];
     } else if (end - start > 1) {
       // 多个交换
@@ -542,14 +535,10 @@ class DraggableContainerState<T extends DraggableItem>
             }
           }
           // 容器尺寸
-          final height = constraints.maxHeight == double.infinity
-              ? _maxHeight
-              : constraints.maxHeight;
+          final height = constraints.maxHeight == double.infinity ? _maxHeight : constraints.maxHeight;
           final width = _shrinkWrap ? _maxWidth : constraints.maxWidth;
           final _slots = _relationship.keys;
-          final _tiles = _relationship.values
-              .where((e) => e != null && e != pickUp)
-              .map((e) => e!);
+          final _tiles = _relationship.values.where((e) => e != null && e != pickUp).map((e) => e!);
           return Center(
             child: Container(
               width: width,
@@ -567,8 +556,7 @@ class DraggableContainerState<T extends DraggableItem>
         },
       ),
     );
-    if (widget.padding != null)
-      child = Padding(padding: widget.padding!, child: child);
+    if (widget.padding != null) child = Padding(padding: widget.padding!, child: child);
     return child;
   }
 
@@ -623,8 +611,7 @@ class DraggableContainerState<T extends DraggableItem>
     final values = _relationship.values.toList();
     keys.insert(index, entry.key);
     values.insert(index, entry.value);
-    final Iterable<MapEntry<DraggableSlot<T>, DraggableWidget<T>?>> entries =
-        Iterable.generate(
+    final Iterable<MapEntry<DraggableSlot<T>, DraggableWidget<T>?>> entries = Iterable.generate(
       keys.length,
       (index) => MapEntry(keys[index], values[index]),
     );
@@ -658,8 +645,7 @@ class DraggableContainerState<T extends DraggableItem>
     );
     final slot = _relationship.keys.elementAt(index);
     print('replaceItem $slot ${_relationship[slot]?.item}');
-    final child = _createItem(
-        index: index, item: item, rect: slot.key.currentState!.rect);
+    final child = _createItem(index: index, item: item, rect: slot.key.currentState!.rect);
     _relationship[slot] = child;
     if (mounted) {
       _updateSlots();
